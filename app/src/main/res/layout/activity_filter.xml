@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <LinearLayout
@@ -28,49 +29,53 @@
         </FrameLayout>
 
         <FrameLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="193dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="37dp"
-            android:layout_marginEnd="37dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true">
 
-            <com.daimajia.slider.library.Indicators.PagerIndicator
-                android:id="@+id/custom_indicator"
+            <ListView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_alignRight="@+id/btnCapture"
-                android:layout_alignEnd="@+id/btnCapture"
-                android:layout_below="@+id/textView" />
+                android:id="@+id/listFilters"
+                android:layout_gravity="left|center_vertical"
+                android:choiceMode="none"
+                style="@style/Widget.AppCompat.ListView"
+                tools:listitem="@android:layout/simple_list_item_2"
+                android:textAlignment="center"
+                android:theme="@style/Theme.AppCompat.Light"
+                android:paddingStart="6dip" />
+
         </FrameLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageButton
-                android:layout_width="76dp"
-                android:layout_height="52dp"
-                android:id="@+id/imageButton"
-                android:src="@android:drawable/checkbox_on_background" />
-
-            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Capture"
+                android:id="@+id/btnSave"
+                android:src="@mipmap/ic_save"
+                android:layout_alignParentTop="true"
+                android:layout_alignBottom="@+id/btnCapture" />
+
+            <ImageButton
+                android:layout_width="151dp"
+                android:layout_height="103dp"
                 android:id="@+id/btnCapture"
-                android:layout_marginRight="119dp"
-                android:layout_marginEnd="119dp"
-                android:layout_alignParentBottom="true"
+                android:src="@mipmap/ic_shutter"
+                android:layout_gravity="right"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:layout_gravity="right" />
+                android:layout_toRightOf="@+id/btnSave"
+                android:layout_toEndOf="@+id/btnSave" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 

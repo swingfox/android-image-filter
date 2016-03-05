@@ -7,170 +7,112 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.imageprocessing.david.imagefilterapp.models.ImageInfo;
 
-import utils.database.GalleryHelper;
 
 public class GalleryAdapter {
-
-    // declare database fields
-    public static final String TBL_INFO = "tbl_info";
+    public static final String TBL_INFO = "tbl_image";
     public static final String COL_ID = "_id";
     public static final String COL_NAME = "name";
-    public static final String COL_AGE = "age";
-    public static final String COL_CITY = "city";
+    public static final String COL_FILTER = "filter";
+    public static final String COL_TYPE = "type";
+    public static final String COL_IMAGE = "image";
 
-    // projection on all columns
     private static final String[] PROJECTION_ALL = new String[] {
-            COL_ID, COL_NAME, COL_AGE, COL_CITY
+            COL_ID, COL_NAME, COL_FILTER, COL_TYPE, COL_IMAGE
     };
 
-    // query output type
-    public static final int QUERY_TYPE_STRING_ARRAY = 0x01;
-    public static final int QUERY_TYPE_USERINFO_OBJ = 0x02;
-
-    // declared fields
     private Context mContext;
     private SQLiteDatabase mDb;
     private GalleryHelper mDbHelper;
 
-    /*
-     * constructor
-     */
     public GalleryAdapter(Context c) {
         mContext = c;
     }
 
-    /*
-     * open database connection
-     */
-    public GalleryAdapter open() throws SQLException {
+    public void open() throws SQLException {
         mDbHelper = new GalleryHelper(mContext);
         mDb = mDbHelper.getWritableDatabase();
-        return this;
     }
 
-    /*
-     * close database connection
-     */
     public void close() {
         mDbHelper.close();
     }
 
-    /*
-     * insert a record to db
-     */
-    public long insertUser(String name, int age, String city) {
-        return mDb.insert(TBL_INFO, null, createContentValues(name, age, city));
+    public long insertImage(String name, String filter, String type, byte[] image) {
+        return mDb.insert(TBL_INFO, null, createContentValues(name, filter, type, image));
     }
 
-    /*
-     * update a record to db
-     */
-    public long updateUser(int id, String name, int age, String city) {
-        return mDb.update(TBL_INFO, createContentValues(name, age, city), COL_ID + "=" + id, null);
+    public long updateImage(int id, String name, String filter, String type, byte[] image) {
+        return mDb.update(TBL_INFO, createContentValues(name, filter, type, image), COL_ID + "=" + id, null);
     }
 
-    /*
-     * delete a record from db
-     */
-    public long deleteUser(int id) {
+    public long deleteImage(int id) {
         return mDb.delete(TBL_INFO, COL_ID + "=" + id, null);
     }
 
-    /*
-     * query all records
-     */
-  /*  public List<ImageInfo> fetchAllUsers() {
-        // get query cursor
-        Cursor queryCursor = mDb.query(TBL_INFO, PROJECTION_ALL, null, null, null, null, null);
-        // just return null if cursor null
+    public List<ImageInfo> fetchAllImages() {
+        Cursor queryCursor = null;
+        try {
+            queryCursor = mDb.query(TBL_INFO, PROJECTION_ALL, null, null, null, null, null);
+        }
+        catch(SQLiteException e){
+            Toast.makeText(mContext,"SQL EXCEPTION: " +e.getMessage(),Toast.LENGTH_LONG).show();
+        }
         if(queryCursor == null) {
-            Log.d("fetch ", "UserDbAdapter.fetchAllUsers(): queryCursor = null ");
+            Log.d("fetch ", "UserDbAdapter.fetchAllImage(): queryCursor = null ");
             return null;
         }
-        // init list to hold user info
-        List<ImageInfo> listUsers = new ArrayList<ImageInfo>();
-        // set cursor to the first element
-        queryCursor.moveToFirst();
-        // if cursor is not the last element
-        while(queryCursor.isAfterLast() == false) {
-            // add new user info
-            listUsers.add(new UserInfo(
-                            // get user id from cursor
-                            queryCursor.getInt(queryCursor.getColumnIndexOrThrow(COL_ID)),
-                            // get user name from cursor
-                            queryCursor.getString(queryCursor.getColumnIndexOrThrow(COL_NAME)),
-                            // get user age from cursor
-                            queryCursor.getInt(queryCursor.getColumnIndexOrThrow(COL_AGE)),
-                            // get user city from cursor
-                            queryCursor.getString(queryCursor.getColumnIndexOrThrow(COL_CITY))
-                    )
-            );
-            // move cursor to next item
-            queryCursor.moveToNext();
+        List<ImageInfo> listImage = new ArrayList<ImageInfo>();
+        if(queryCursor.moveToFirst()) {
+            while (queryCursor.isAfterLast() == false) {
+                listImage.add(new ImageInfo(
+                                queryCursor.getInt(queryCursor.getColumnIndexOrThrow(COL_ID)),
+                                queryCursor.getString(queryCursor.getColumnIndexOrThrow(COL_NAME)),
+                                queryCursor.getString(queryCursor.getColumnIndexOrThrow(COL_FILTER)),
+                                queryCursor.getString(queryCursor.getColumnIndexOrThrow(COL_TYPE)),
+                                queryCursor.getBlob(queryCursor.getColumnIndexOrThrow(COL_IMAGE))
+                        )
+                );
+                queryCursor.moveToNext();
+            }
         }
-        // check if cursor is still opened and not null
         if(queryCursor != null && !queryCursor.isClosed()) {
-            // close it to avoid memory leak
             queryCursor.close();
         }
-        Log.d("fetch ", "UserDbAdapter.fetchAllUsers(): listUsers.size() = " + listUsers.size());
-        // return user list
-        return listUsers;
+        Log.d("fetch ", "UserDbAdapter.fetchAllImage(): listImage.size() = " + listImage.size());
+        return listImage;
     }
-*/
-    /*
-     * query one record
-     */
-    public Object fetchSingleUser(int id, int type) {
-        // query a cursor on identified user
+
+    public Object fetchSingleImage(int id) {
         Cursor c = mDb.query(true, TBL_INFO, PROJECTION_ALL, COL_ID + "=" + id, null, null, null, null, null);
-        // return null if no record avaiable
         if(c == null) {
             return null;
         }
-
         Object objOut = null;
-
-        if(type == QUERY_TYPE_STRING_ARRAY) {
-            // create array to hold user info
-            String[] user_info = new String[4];
-            user_info[0] = String.valueOf(id);
-            user_info[1] = c.getString(c.getColumnIndexOrThrow(COL_NAME));
-            user_info[2] = c.getString(c.getColumnIndexOrThrow(COL_AGE));
-            user_info[3] = c.getString(c.getColumnIndexOrThrow(COL_CITY));
-            objOut = user_info;
-        } else {
-            // create UserInfo object
-       /*     UserInfo user_info = new UserInfo(
-                    id,
+        if(c.moveToFirst()) {
+            ImageInfo user_info = new ImageInfo(id,
                     c.getString(c.getColumnIndexOrThrow(COL_NAME)),
-                    c.getInt(c.getColumnIndexOrThrow(COL_AGE)),
-                    c.getString(c.getColumnIndexOrThrow(COL_CITY))
-            );
-            objOut = user_info;*/
-        }
-        // close cursor
-        c.close();
+                    c.getString(c.getColumnIndexOrThrow(COL_FILTER)),
+                    c.getString(c.getColumnIndexOrThrow(COL_TYPE)),
+                    c.getBlob(c.getColumnIndexOrThrow(COL_IMAGE)));
 
-        // return user info
+            objOut = user_info;
+            c.close();
+        }
         return objOut;
     }
 
-    /*
-     * create ContentValues object to use for db transaction
-     */
-    private ContentValues createContentValues(String name, int age, String city) {
-        // init a ContentValues object
+    private ContentValues createContentValues(String name, String filter,String type, byte[] image) {
         ContentValues cv = new ContentValues();
-        // put data
         cv.put(COL_NAME, name);
-        cv.put(COL_AGE, age);
-        cv.put(COL_CITY, city);
-        // return object
+        cv.put(COL_FILTER, filter);
+        cv.put(COL_TYPE,type);
+        cv.put(COL_IMAGE,image);
         return cv;
     }
 }

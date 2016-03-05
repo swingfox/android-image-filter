@@ -21,8 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.gun0912.tedpicker.ImagePickerActivity" />
+        <activity android:name="com.gun0912.tedpicker.ImagePickerActivity" android:screenOrientation="portrait" />
         <activity android:name=".activity.FilterActivity" />
+        <activity android:name=".activity.GalleryActivity" />
     </application>
 
 </manifest>

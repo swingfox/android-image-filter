@@ -9,19 +9,20 @@ import android.widget.Button;
 import com.imageprocessing.david.imagefilterapp.R;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
-
     private Button gallery;
     private Button filter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
         filter = (Button) findViewById(R.id.btnFilterImage);
         gallery = (Button) findViewById(R.id.btnGallery);
 
         filter.setOnClickListener(this);
         gallery.setOnClickListener(this);
+        this.setTitle("Image Filter Application");
+
     }
 
     @Override
@@ -34,6 +35,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(i);
                 break;
             case R.id.btnGallery:
+                Intent j = new Intent(this,GalleryActivity.class);
+                startActivity(j);
                 break;
         }
     }
